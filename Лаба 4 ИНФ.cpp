@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <regex>
 #include <algorithm>
 #include <iterator>
 using namespace std;
@@ -21,12 +20,12 @@ void filefillarray(vector<string>& vec)
 	string name;
 	bool state = true;
 	
-	cout << "\nEnter the path to the file using double \\ in the format .txt: ";
+	cout << "\nEnter the path to the file in the format .txt: ";
 
 	while (state)
 	{
 		getline(cin, name);
-
+		
 		ifstream file;
 		file.open(name);
 
@@ -36,7 +35,7 @@ void filefillarray(vector<string>& vec)
 				cout << "\nEverything is fine! The file is open!\n" << endl;
 			else
 			{
-				cout << "\nFile not open!" << endl;
+				cout << "\nFile not open!";
 				throw runtime_error("\nSomething went wrong! Select another file: ");
 			}
 
@@ -47,6 +46,7 @@ void filefillarray(vector<string>& vec)
 				check_file(inp);
 				vec.push_back(inp);
 			}
+
 			file.close();
 			state = false;
 		}
@@ -67,9 +67,12 @@ string check_string()
 		getline(cin, res);
 		try 
 		{
+			if (res.empty())
+				throw runtime_error("\nEmpty string!!! Repeat the input: ");
+
 			for (int i = 0; i < res.size(); i++)
 			{
-				if (isalpha(res[i]) == 0)
+				if (res[i] < 'a' || res[i] > 'z' )
 					throw runtime_error("\nNot a letter detected!!! Repeat the input: ");
 			}
 
@@ -112,12 +115,18 @@ void check_infile_firstword(vector<string> vec, string &firstword, string str)
 void botstep(vector<string> vec, string userword, string& botword)
 {
 	char endletter = userword[userword.size() - 1];
-	
+
+	vector<string> list;
+
 	for (int i = 0; i < vec.size(); i++)
 	{
 		if (vec[i][0] == endletter)
-			botword = vec[i];
+			list.push_back(vec[i]);
 	}
+
+	int g = rand() % (list.size() + 1); // random number in the range from 0 to size list
+	botword = list[g];
+
 	cout << "\nBot says: " << botword << endl;
 }
 
@@ -173,14 +182,13 @@ void game(vector<string> vec)
 
 }
 
-
 int main()
 {
+	cout << "\nSTRING AND WORDS GAME\n" << endl;
+
+	srand(time(NULL));
 	vector<string> vec;
 
-	
 	filefillarray(vec);
 	game(vec);
-	
-
 }
