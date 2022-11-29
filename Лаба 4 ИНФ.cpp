@@ -112,7 +112,7 @@ void check_infile_firstword(vector<string> vec, string &firstword, string str)
 
 }
 
-void botstep(vector<string> vec, string userword, string& botword)
+void botstep(vector<string> vec, vector<string>& userwords, string userword, string& botword)
 {
 	char endletter = userword[userword.size() - 1];
 
@@ -127,20 +127,59 @@ void botstep(vector<string> vec, string userword, string& botword)
 	int g = rand() % (list.size() + 1); // random number in the range from 0 to size list
 	botword = list[g];
 
+	bool state = true;	
+		
+	for (int i = 0; i < userwords.size(); i++)
+	{
+		while (botword == userwords[i])
+		{
+			g = rand() % (list.size() + 1);
+			botword = list[g];
+		}
+	}	
+
+	userwords.push_back(botword);
+
+	for (int i = 0; i < vec.size(); i++) // Removing from the array all the elements of the word that the bot called
+	{
+		if (vec[i] == botword)
+		{
+			//cout << vec[i] << endl;
+			vec.erase(vec.begin() + (i -1));
+			//cout << vec[i];
+		}
+	}
+
 	cout << "\nBot says: " << botword << endl;
 }
 
-void userstep(vector<string> vec, string& userword, string botword, bool& breaker)
+void userstep(vector<string> vec, vector<string>& userwords, string& userword, string botword, bool& breaker)
 {
 	char endletter = botword[botword.size() - 1];
 	bool check_letter = false;
 	bool check_presence = false;
+	bool check_usedword = false;
 
 	cout << "\nInput a word: ";
 	userword = check_string();
 
+	
+
 	if (userword[0] == endletter)  // checking for the first letter
-			check_letter = true;
+	{
+		check_letter = true;
+	}
+
+	if (check_letter)
+	{
+		
+		for (int i = 0; i < userwords.size(); i++)
+		{
+			if (userwords[i] == userword)
+				check_usedword = true;
+		}
+
+	}
 
 	if (check_letter)  // checking for the presence of a word
 	{
@@ -150,8 +189,11 @@ void userstep(vector<string> vec, string& userword, string botword, bool& breake
 				check_presence = true;
 		}
 	}
+
+	userwords.push_back(userword); // Recording words that the user has already called
+
 	
-	if (!check_letter)
+	if (!check_letter || check_usedword)
 	{
 		breaker = false;
 		cout << "\nYou disrupt the rules of the game!";
@@ -171,13 +213,14 @@ void game(vector<string> vec)
 	bool breaker = true;
 	string userword;
 	string botword;
+	vector<string> userwords;
 
 	check_infile_firstword(vec, userword, "\nInput a first word: ");
 	
 	while (breaker)
 	{
-		botstep(vec, userword, botword);
-		userstep(vec, userword, botword, breaker);
+		botstep(vec, userwords, userword, botword);
+		userstep(vec, userwords, userword, botword, breaker);
 	}
 
 }
